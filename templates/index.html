@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block head %}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/index.js') }}"></script>
+{% endblock %}
+{% block body %}
+<input type="text" id="terms-searchbox" class="terms-searchbox" placeholder="Enter a term">
+
+<div class="terms-container">
+</div>
+{% endblock %}

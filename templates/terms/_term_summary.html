@@ -1,0 +1,17 @@
+<div class="term term-summary">
+    <div class="term-title">
+        <h2>
+            <a href="{{ url_for('terms_view', id=term.id) }}">{{ term.name }}</a>
+        </h2>
+    </div>
+
+    <div class="term-clips">
+        {% for clip in term.clips %}
+            <div class="term-clip">
+                <audio controls>
+                    <source src="{{ clip.url }}"></source>
+                </audio>
+            </div>
+        {% endfor %}
+    </div>
+</div>
