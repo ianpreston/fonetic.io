@@ -18,6 +18,12 @@ a {
     text-decoration: none;
     color: black;
 }
+.user-bar {
+    width: 100%;
+    margin: 5px 0;
+    text-align: right;
+    font-size: 10px;
+}
 
 .terms-searchbox {
     width: 100%;

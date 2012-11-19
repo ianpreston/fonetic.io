@@ -1,7 +1,8 @@
 #!/usr/bin/python
-from flask import Flask, render_template, redirect, request, url_for
+from flask import Flask, render_template, redirect, request, url_for, session, g
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.wtf import Form, TextField, FileField, FormField, FieldList, Required
+from flask.ext.wtf import Form, TextField, PasswordField, FileField, FormField, FieldList, Required
+import functools
 import sys
 import datetime
 import os.path
@@ -48,6 +49,23 @@ class TermForm(Form):
     description = TextField('Description')
     clips = FieldList(FormField(ClipForm))
 
+class LoginForm(Form):
+    username = TextField('Username')
+    password = PasswordField('Password')
+
+
+@app.before_request
+def before_request():
+    g.username = session.get('username', None)
+
+def login_required(f):
+    @functools.wraps(f)
+    def decorated_function(*args, **kwargs):
+        if g.username == None:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 
 @app.route('/')
 def index():
@@ -70,11 +88,13 @@ def terms_view(id):
 
 
 @app.route('/admin/')
+@login_required
 def admin_index():
     terms = Term.query.all()
     return render_template('admin/index.html', terms=terms)
 
 @app.route('/admin/terms/create', methods=['GET', 'POST'])
+@login_required
 def admin_terms_create():
     form = TermForm()
 
@@ -105,12 +125,30 @@ def admin_terms_create():
     return render_template('admin/terms/create.html', form=form)
 
 @app.route('/admin/terms/delete/<int:id>')
+@login_required
 def admin_terms_delete(id):
     ##TODO some kind of confirmation. don't modify data on a GET request.
     term = Term.query.get(id)
     db.session.delete(term)
     db.session.commit()
     return redirect(url_for('admin_index'))
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        if (form.username.data, form.password.data) in app.config['ADMIN_USERS']:
+            session['username'] = form.username.data
+            return redirect(url_for('admin_index'))
+
+    return render_template('login.html', form=form)
+
+@app.route('/logout')
+def logout():
+    session['username'] = None
+    return redirect('/')
+
 
 if __name__ == '__main__':
     app.run(debug=True)

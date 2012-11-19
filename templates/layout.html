@@ -13,6 +13,9 @@
         <div class="header">
             <h1><a href="/">Query</a></h1>
         </div>
+        {% if g.username %}
+            <div class="user-bar">Hello, {{ g.username }} | <a href="{{ url_for('admin_index') }}">Admin</a> | <a href="{{ url_for('logout') }}">Log out</a></div>
+        {% endif %}
         <div class="body">
             {% block body %}
             {% endblock %}
