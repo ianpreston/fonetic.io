@@ -93,7 +93,7 @@ def admin_terms_create():
 
     return render_template('admin/terms/create.html', form=form)
 
-@app.route('/admin/terms/edit/<int:id>', methods=['GET', 'POST'])
+@app.route('/admin/terms/<int:id>/edit', methods=['GET', 'POST'])
 @login_required
 def admin_terms_edit(id):
     term = Term.query.get(id)
@@ -114,7 +114,7 @@ def admin_terms_edit(id):
 
     return render_template('admin/terms/edit.html', form=form, term=term)
 
-@app.route('/admin/terms/delete/<int:id>', methods=['POST'])
+@app.route('/admin/terms/<int:id>/delete', methods=['POST'])
 @login_required
 def admin_terms_delete(id):
     term = Term.query.get(id)
@@ -123,7 +123,7 @@ def admin_terms_delete(id):
     return 'success'
 
 
-@app.route('/admin/clips/delete/<int:id>', methods=['POST'])
+@app.route('/admin/clips/<int:id>/delete', methods=['POST'])
 @login_required
 def admin_clips_delete(id):
     clip = Clip.query.get(id)
