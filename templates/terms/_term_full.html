@@ -1,0 +1,29 @@
+<div class="term term-full">
+    <div class="term-title">
+        <h1>
+            {{ term.name }}
+        </h1>
+    </div>
+
+    <div class="term-description">
+        {{ term.description }}
+    </div>
+
+    <div class="term-clips">
+        {% for clip in term.clips %}
+            <div class="term-clip">
+                <audio controls>
+                    <source src="{{ clip.url }}"></source>
+                </audio>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="term-timestamp">
+        This term was created on {{ term.created_at.strftime("%Y-%m-%d") }}
+    </div>
+
+    {% if g.username %}
+        <a href="{{ url_for('admin_terms_edit', id=term.id) }}">Edit this term</a>
+    {% endif %}
+</div>

@@ -43,6 +43,13 @@ a {
 .term-title a:hover {
     text-decoration: underline;
 }
+.term-description {
+    margin: 15px 0;
+}
+.term-timestamp {
+    margin: 5px 0;
+    font-size: 10px;
+}
 
 .admin-terms-table {
     width: 100%;
