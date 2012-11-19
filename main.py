@@ -1,12 +1,10 @@
 #!/usr/bin/python
 from flask import Flask, render_template, redirect, request, url_for, session, g
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.wtf import Form, TextField, IntegerField, PasswordField, FileField, FormField, FieldList, Required, HiddenInput
+import forms
+import helpers
 import functools
-import sys
 import datetime
-import os.path
-import random
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -33,29 +31,6 @@ class Clip(db.Model):
     def __init__(self, url, term):
         self.url = url
         self.term = term
-
-
-class TermForm(Form):
-    name = TextField('Name', validators=[Required()])
-    description = TextField('Description')
-    create_clip_with_file = FileField('Add a new clip')
-
-class LoginForm(Form):
-    username = TextField('Username')
-    password = PasswordField('Password')
-
-
-def save_termform_clip(form):
-    '''
-    Helper function that takes a TermForm with create_clip_with_file uploaded by the user, saves the file
-    to disk, and returns the URL to that file (which should be used as the URL for a new Clip).
-    '''
-    destination_fname = (''.join([random.choice('abcdefghijklmnopqrstuvwzyz') for x in range(0, 16)])) + \
-                        (os.path.splitext(form.create_clip_with_file.data.filename)[1])
-    destination_path = os.path.join(sys.path[0], 'static', 'clips', destination_fname)
-    destination_url  = url_for('static', filename=os.path.join('clips', destination_fname))
-    form.create_clip_with_file.data.save(destination_path)
-    return destination_url
 
 
 @app.before_request
@@ -100,13 +75,13 @@ def admin_index():
 @app.route('/admin/terms/create', methods=['GET', 'POST'])
 @login_required
 def admin_terms_create():
-    form = TermForm()
+    form = forms.TermForm()
 
     if form.validate_on_submit():
         new_term = Term(form.name.data, form.description.data)
 
         if form.create_clip_with_file.data.filename != '':
-            destination_url = save_termform_clip(form)
+            destination_url = helpers.save_termform_clip(form)
 
             new_clip = Clip(destination_url, new_term)
             db.session.add(new_clip)
@@ -122,13 +97,13 @@ def admin_terms_create():
 @login_required
 def admin_terms_edit(id):
     term = Term.query.get(id)
-    form = TermForm(obj=term)
+    form = forms.TermForm(obj=term)
 
     if form.validate_on_submit():
         form.populate_obj(term)
 
         if form.create_clip_with_file.data.filename != '':
-            destination_url = save_termform_clip(form)
+            destination_url = helpers.save_termform_clip(form)
 
             new_clip = Clip(destination_url, term)
             db.session.add(new_clip)
@@ -158,7 +133,7 @@ def admin_clips_delete(id):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm()
+    form = forms.LoginForm()
     if form.validate_on_submit():
         if (form.username.data, form.password.data) in app.config['ADMIN_USERS']:
             session['username'] = form.username.data
