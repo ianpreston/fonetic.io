@@ -1,14 +1,17 @@
 {% extends "layout.html" %}
+{% block head %}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}
 {% block body %}
     <h2>All Terms</h2>
     <table class="admin-terms-table">
         {% for term in terms %}
-            <tr>
+            <tr data-role="admin-term-container">
                 <td><strong>{{ term.name }}</strong></td>
                 <td>{{ term.description|truncate(120) }}</td>
                 <td><a href="{{ url_for('terms_view', id=term.id) }}">View</a></td>
                 <td><a href="{{ url_for('admin_terms_edit', id=term.id) }}">Edit</a></td>
-                <td><a href="{{ url_for('admin_terms_delete', id=term.id) }}">Delete</a></td>
+                <td><a href="#" data-role="delete-term" data-term-id="{{ term.id }}">Delete</a></td>
             </tr>
         {% endfor %}
     </table>

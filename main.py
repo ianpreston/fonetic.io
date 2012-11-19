@@ -107,7 +107,7 @@ def admin_terms_create():
 
         if form.create_clip_with_file.data.filename != '':
             destination_url = save_termform_clip(form)
-            
+
             new_clip = Clip(destination_url, new_term)
             db.session.add(new_clip)
 
@@ -138,14 +138,13 @@ def admin_terms_edit(id):
 
     return render_template('admin/terms/edit.html', form=form, term=term)
 
-@app.route('/admin/terms/delete/<int:id>')
+@app.route('/admin/terms/delete/<int:id>', methods=['POST'])
 @login_required
 def admin_terms_delete(id):
-    ##TODO term deletes should happen over AJAX, like clip deletes
     term = Term.query.get(id)
     db.session.delete(term)
     db.session.commit()
-    return redirect(url_for('admin_index'))
+    return 'success'
 
 
 @app.route('/admin/clips/delete/<int:id>', methods=['POST'])
