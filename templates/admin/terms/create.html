@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% block body %}
+    <h2>Create Term</h2>
+    <form action="{{ url_for('admin_terms_create') }}" method="post" enctype="multipart/form-data">
+        {{ form.csrf_token }}
+
+        {% if form.errors %}
+            <div class="form-errors">
+                <p>Some errors prevented this Term from being saved</p>
+                <ul>
+                    {% for field_name, field_errors in form.errors|dictsort if field_errors %}
+                        {% for error in field_errors %}
+                            <li>{{ form[field_name].label }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+
+            </div>
+        {% endif %}
+
+        <div class="form-label">
+            {{ form.name.label }}
+        </div>
+        <div class="form-field">
+            {{ form.name }}
+        </div>
+
+        <div class="form-label">
+            {{ form.description.label }}
+        </div>
+        <div class="form-field">
+            {{ form.description }}
+        </div>
+
+        <div>
+            {% for clip_form in form.clips %}
+                <div class="form-label">
+                    {{ clip_form.clip_file.label }}
+                </div>
+                <div class="form-field">
+                    {{ clip_form.clip_file }}
+                </div>
+            {% endfor %}
+        </div>
+
+        <input type="submit" value="Create" class="form-submit">
+    </form>
+{% endblock %}

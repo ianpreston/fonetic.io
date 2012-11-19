@@ -1,3 +1,8 @@
+a {
+    color: blue;
+    text-decoration: none;
+}
+
 .page-container {
     width: 960px;
     margin: 30px auto 0 auto;
@@ -31,4 +36,16 @@
 }
 .term-title a:hover {
     text-decoration: underline;
+}
+
+.admin-terms-table {
+    width: 100%;
+}
+
+.form-label {
+    font-weight: bold;
+    font-size: 13px;
+}
+.form-field {
+    margin-bottom: 10px;
 }
