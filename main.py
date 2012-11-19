@@ -109,7 +109,8 @@ def admin_terms_edit(id):
             db.session.add(new_clip)
 
         db.session.commit()
-        
+
+        return redirect(url_for('admin_index'))
 
     return render_template('admin/terms/edit.html', form=form, term=term)
 
