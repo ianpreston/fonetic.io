@@ -1,7 +1,10 @@
 {% extends "layout.html" %}
+{% block head %}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}
 {% block body %}
-    <h2>Create Term</h2>
-    <form action="{{ url_for('admin_terms_create') }}" method="post" enctype="multipart/form-data">
+    <h2>Edit Term</h2>
+    <form action="{{ url_for('admin_terms_edit', id=term.id) }}" method="post" enctype="multipart/form-data">
         {{ form.csrf_token }}
 
         {% if form.errors %}
@@ -31,6 +34,18 @@
             {{ form.description }}
         </div>
 
+        <div>
+            {% for clip in term.clips.all() %}
+                <div class="form-subform" data-role="admin-clip-container">
+                    <audio controls>
+                        <source src="{{ clip.url }}"></source>
+                    </audio>
+                    <br />
+                    <a href="#" data-role="delete-clip" data-clip-id="{{ clip.id }}">Delete</a>
+                </div>
+            {% endfor %}
+        </div>
+
         <div class="form-label">
             {{ form.create_clip_with_file.label }}
         </div>
@@ -38,6 +53,6 @@
             {{ form.create_clip_with_file }}
         </div>
 
-        <input type="submit" value="Create" class="form-submit">
+        <input type="submit" value="Update Term" class="form-submit">
     </form>
 {% endblock %}

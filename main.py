@@ -1,7 +1,7 @@
 #!/usr/bin/python
 from flask import Flask, render_template, redirect, request, url_for, session, g
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.wtf import Form, TextField, PasswordField, FileField, FormField, FieldList, Required
+from flask.ext.wtf import Form, TextField, IntegerField, PasswordField, FileField, FormField, FieldList, Required, HiddenInput
 import functools
 import sys
 import datetime
@@ -12,7 +12,6 @@ app = Flask(__name__)
 app.config.from_object('config')
 db = SQLAlchemy(app)
 
-
 class Term(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
@@ -22,7 +21,6 @@ class Term(db.Model):
     def __init__(self, name, description):
         self.name = name
         self.description = description
-
 
 class Clip(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -37,21 +35,27 @@ class Clip(db.Model):
         self.term = term
 
 
-class ClipForm(Form):
-    clip_file = FileField('Clip')
-
-    def __init__(self, *args, **kwargs):
-       kwargs['csrf_enabled'] = False
-       super(ClipForm, self).__init__(*args, **kwargs)
-
 class TermForm(Form):
     name = TextField('Name', validators=[Required()])
     description = TextField('Description')
-    clips = FieldList(FormField(ClipForm))
+    create_clip_with_file = FileField('Add a new clip')
 
 class LoginForm(Form):
     username = TextField('Username')
     password = PasswordField('Password')
+
+
+def save_termform_clip(form):
+    '''
+    Helper function that takes a TermForm with create_clip_with_file uploaded by the user, saves the file
+    to disk, and returns the URL to that file (which should be used as the URL for a new Clip).
+    '''
+    destination_fname = (''.join([random.choice('abcdefghijklmnopqrstuvwzyz') for x in range(0, 16)])) + \
+                        (os.path.splitext(form.create_clip_with_file.data.filename)[1])
+    destination_path = os.path.join(sys.path[0], 'static', 'clips', destination_fname)
+    destination_url  = url_for('static', filename=os.path.join('clips', destination_fname))
+    form.create_clip_with_file.data.save(destination_path)
+    return destination_url
 
 
 @app.before_request
@@ -98,22 +102,12 @@ def admin_index():
 def admin_terms_create():
     form = TermForm()
 
-    if len(form.clips) == 0:
-        form.clips.append_entry(ClipForm())
-
     if form.validate_on_submit():
         new_term = Term(form.name.data, form.description.data)
 
-        for clip_form in form.clips:
-            if clip_form.clip_file.data.filename == '':
-                continue
-
-            destination_fname = (''.join([random.choice('abcdefghijklmnopqrstuvwzyz') for x in range(0, 16)])) + \
-                                (os.path.splitext(clip_form.clip_file.data.filename)[1])
-            destination_path = os.path.join(sys.path[0], 'static', 'clips', destination_fname)
-            destination_url  = url_for('static', filename=os.path.join('clips', destination_fname))
-            clip_form.clip_file.data.save(destination_path)
-
+        if form.create_clip_with_file.data.filename != '':
+            destination_url = save_termform_clip(form)
+            
             new_clip = Clip(destination_url, new_term)
             db.session.add(new_clip)
 
@@ -124,14 +118,43 @@ def admin_terms_create():
 
     return render_template('admin/terms/create.html', form=form)
 
+@app.route('/admin/terms/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def admin_terms_edit(id):
+    term = Term.query.get(id)
+    form = TermForm(obj=term)
+
+    if form.validate_on_submit():
+        form.populate_obj(term)
+
+        if form.create_clip_with_file.data.filename != '':
+            destination_url = save_termform_clip(form)
+
+            new_clip = Clip(destination_url, term)
+            db.session.add(new_clip)
+
+        db.session.commit()
+        
+
+    return render_template('admin/terms/edit.html', form=form, term=term)
+
 @app.route('/admin/terms/delete/<int:id>')
 @login_required
 def admin_terms_delete(id):
-    ##TODO some kind of confirmation. don't modify data on a GET request.
+    ##TODO term deletes should happen over AJAX, like clip deletes
     term = Term.query.get(id)
     db.session.delete(term)
     db.session.commit()
     return redirect(url_for('admin_index'))
+
+
+@app.route('/admin/clips/delete/<int:id>', methods=['POST'])
+@login_required
+def admin_clips_delete(id):
+    clip = Clip.query.get(id)
+    db.session.delete(clip)
+    db.session.commit()
+    return 'success'
 
 
 @app.route('/login', methods=['GET', 'POST'])

@@ -55,3 +55,11 @@ a {
 .form-field {
     margin-bottom: 10px;
 }
+.form-subform {
+    margin: 10px 15px;
+    padding: 6px;
+    background-color: #efefef;
+}
+.form-subform a {
+    font-size: 12px;
+}
