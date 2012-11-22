@@ -1,3 +1,7 @@
-{% for term in terms %}
-    {% include 'terms/_term_summary.html' %}
-{% endfor %}
+{% if terms.count() > 0 %}
+    {% for term in terms %}
+        {% include 'terms/_term_summary.html' %}
+    {% endfor %}
+{% else %}
+    <p>Sorry, no results were found for the query "{{ query }}".</p>
+{% endif %}
