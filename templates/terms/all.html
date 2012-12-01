@@ -1,0 +1,7 @@
+{% extends "layout.html" %}
+{% block body %}
+<h2>Viewing All Terms</h2>
+{% for term in terms %}
+    {% include 'terms/_term_summary.html' %}
+{% endfor %}
+{% endblock %}

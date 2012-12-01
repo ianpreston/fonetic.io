@@ -51,6 +51,11 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/terms/all')
+def terms_all():
+    terms = Term.query.all()
+    return render_template('terms/all.html', terms=terms)
+
 @app.route('/terms/search')
 def terms_search():
     query = request.args.get('q', '')

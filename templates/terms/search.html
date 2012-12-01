@@ -3,5 +3,5 @@
         {% include 'terms/_term_summary.html' %}
     {% endfor %}
 {% else %}
-    <p>Sorry, no results were found for the query "{{ query }}".</p>
+    <p>Sorry, no results were found for the query "{{ query }}". You could try the <a href="{{ url_for('terms_all') }}">list of all terms</a>.</p>
 {% endif %}

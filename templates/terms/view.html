@@ -1,4 +1,7 @@
 {% extends "layout.html" %}
+{% block head %}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/terms.js') }}"></script>
+{% endblock %}
 {% block body %}
     {% include 'terms/_term_full.html' %}
 {% endblock %}
