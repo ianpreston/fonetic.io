@@ -62,7 +62,7 @@ def terms_search():
 
     if len(query) < 3: return ''
 
-    terms = Term.query.filter(Term.name.like(r'%{0}%'.format(query)))
+    terms = Term.query.filter(Term.name.ilike(r'%{0}%'.format(query)))
     return render_template('terms/search.html', terms=terms, query=query)
 
 @app.route('/terms/<int:id>')
